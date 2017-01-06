@@ -2,6 +2,7 @@
 <resources>
 
     <string-array name="options">
-        <item>AsyncTask</item>
+        <item>@string/title_async_task</item>
+        <item>@string/title_handler_thread</item>
     </string-array>
 </resources>

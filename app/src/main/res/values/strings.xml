@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name">Threading</string>
 
+    <string name="title_async_task">Async Task</string>
+    <string name="title_handler_thread">Handler Thread</string>
+
     <string name="text_start">Start</string>
     <string name="text_in_progress">In Progress&#8230;</string>
     <string name="text_finished">Task finished</string>

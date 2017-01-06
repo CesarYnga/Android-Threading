@@ -22,6 +22,8 @@ public class MainActivity extends AppCompatActivity {
             case 0:
                 startActivity(AsyncTaskActivity.class);
                 break;
+            case 1:
+                startActivity(HandlerThreadActivity.class);
         }
     }
 

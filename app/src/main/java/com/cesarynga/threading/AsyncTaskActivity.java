@@ -9,6 +9,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import java.lang.ref.WeakReference;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -16,7 +17,7 @@ import butterknife.OnClick;
 
 public class AsyncTaskActivity extends AppCompatActivity {
 
-    private static final int TASK_DELAY = 5000;
+    private static final int TASK_DURATION_IN_SECONDS = 5;
 
     @BindView(R.id.btn_start_task)
     Button btnStartTask;
@@ -52,7 +53,7 @@ public class AsyncTaskActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(Void... voids) {
             try {
-                Thread.sleep(TASK_DELAY);
+                TimeUnit.SECONDS.sleep(TASK_DURATION_IN_SECONDS);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
