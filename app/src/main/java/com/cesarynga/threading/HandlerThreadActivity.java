@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import java.lang.ref.WeakReference;
 import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
@@ -24,7 +25,9 @@ public class HandlerThreadActivity extends AppCompatActivity {
     @BindView(R.id.progress_bar)
     ProgressBar progressBar;
 
+    // Handler that post task on the UI thread
     private final Handler uiHandler = new Handler();
+
     private final MyWorkerThread myWorkerThread = new MyWorkerThread("myWorkerThread");
 
     @Override
@@ -39,7 +42,7 @@ public class HandlerThreadActivity extends AppCompatActivity {
 
     @OnClick(R.id.btn_start_task)
     public void onClick() {
-        myWorkerThread.postTask(task);
+        myWorkerThread.postTask(new BackgroundTask(this));
     }
 
     @Override
@@ -48,21 +51,10 @@ public class HandlerThreadActivity extends AppCompatActivity {
         myWorkerThread.quit();
     }
 
-    private final Runnable task = new Runnable() {
-        @Override
-        public void run() {
-            uiHandler.post(onStartTask);
-            try {
-                TimeUnit.SECONDS.sleep(TASK_DURATION_IN_SECONDS);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            uiHandler.post(onFinishedTask);
-        }
-    };
-
+    // HandlerThread that handles operations in background
     private static class MyWorkerThread extends HandlerThread {
 
+        // Handler that post task on the worker thread
         private Handler workerHandler;
 
         MyWorkerThread(String name) {
@@ -78,22 +70,63 @@ public class HandlerThreadActivity extends AppCompatActivity {
         }
     }
 
-    private final Runnable onStartTask = new Runnable() {
-        @Override
-        public void run() {
-            btnStartTask.setEnabled(false);
-            btnStartTask.setText(R.string.text_in_progress);
-            progressBar.setVisibility(View.VISIBLE);
-        }
-    };
+    // Operation to be executed in a background thread
+    private static class BackgroundTask implements Runnable {
 
-    private final Runnable onFinishedTask = new Runnable() {
+        private WeakReference<HandlerThreadActivity> activityRef;
+
+        public BackgroundTask(HandlerThreadActivity activity) {
+            this.activityRef = new WeakReference<>(activity);
+        }
+
         @Override
         public void run() {
-            btnStartTask.setEnabled(true);
-            btnStartTask.setText(R.string.text_start);
-            progressBar.setVisibility(View.GONE);
-            Toast.makeText(HandlerThreadActivity.this, R.string.text_finished, Toast.LENGTH_SHORT).show();
+            HandlerThreadActivity activity = activityRef.get();
+            activity.uiHandler.post(new OnStartTask(activity));
+            try {
+                TimeUnit.SECONDS.sleep(TASK_DURATION_IN_SECONDS);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            activity.uiHandler.post(new OnFinishTask(activity));
         }
-    };
+    }
+
+    // Task to be executed when background task starts
+    private static class OnStartTask implements Runnable {
+
+        private WeakReference<HandlerThreadActivity> activityRef;
+
+        public OnStartTask(HandlerThreadActivity activity) {
+            this.activityRef = new WeakReference<>(activity);
+        }
+
+        @Override
+        public void run() {
+            HandlerThreadActivity activity = activityRef.get();
+            activity.btnStartTask.setEnabled(false);
+            activity.btnStartTask.setText(R.string.text_in_progress);
+            activity.progressBar.setVisibility(View.VISIBLE);
+        }
+    }
+
+    // Task to be executed when background task finishes
+    private static class OnFinishTask implements Runnable {
+
+        private WeakReference<HandlerThreadActivity> activityRef;
+
+        public OnFinishTask(HandlerThreadActivity activity) {
+            this.activityRef = new WeakReference<>(activity);
+        }
+
+        @Override
+        public void run() {
+            HandlerThreadActivity activity = activityRef.get();
+            activity.btnStartTask.setEnabled(true);
+            activity.btnStartTask.setText(R.string.text_start);
+            activity.progressBar.setVisibility(View.GONE);
+            Toast.makeText(activity, R.string.text_finished, Toast.LENGTH_SHORT).show();
+        }
+    }
+
 }

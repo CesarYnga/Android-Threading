@@ -33,13 +33,18 @@ public class AsyncTaskActivity extends AppCompatActivity {
 
     @OnClick(R.id.btn_start_task)
     public void onClick() {
+        // Need to execute a new AsyncTask each time
         new MyTask(this).execute();
     }
 
+
+    // Declare as static in order to prevent inner class to keep a reference to the activity
     private static class MyTask extends AsyncTask<Void, Void, Void> {
 
         private final WeakReference<AsyncTaskActivity> activityRef;
 
+        // Pass the activity in the constructor and set it in a WeakReference,
+        // so the reference to the context will be eligible for GC
         private MyTask(AsyncTaskActivity activity) {
             activityRef = new WeakReference<>(activity);
         }

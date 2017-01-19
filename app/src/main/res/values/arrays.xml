@@ -4,5 +4,6 @@
     <string-array name="options">
         <item>@string/title_async_task</item>
         <item>@string/title_handler_thread</item>
+        <item>@string/title_intent_service</item>
     </string-array>
 </resources>

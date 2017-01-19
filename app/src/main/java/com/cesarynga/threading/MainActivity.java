@@ -24,6 +24,9 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case 1:
                 startActivity(HandlerThreadActivity.class);
+                break;
+            case 2:
+                startActivity(IntentServiceActivity.class);
         }
     }
 
