@@ -38,6 +38,7 @@ public class AsyncTaskActivity extends AppCompatActivity {
     }
 
 
+    // Task to be executed in background
     // Declare as static in order to prevent inner class to keep a reference to the activity
     private static class MyTask extends AsyncTask<Void, Void, Void> {
 

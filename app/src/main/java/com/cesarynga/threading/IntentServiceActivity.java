@@ -58,10 +58,13 @@ public class IntentServiceActivity extends AppCompatActivity {
         startService(intent);
     }
 
+    // Receiver for MyIntentService
     private static class MyReceiver extends BroadcastReceiver {
 
         private final WeakReference<IntentServiceActivity> activityRef;
 
+        // Pass the activity in the constructor and set it in a WeakReference,
+        // so the reference to the context will be eligible for GC
         public MyReceiver(IntentServiceActivity activity) {
             activityRef = new WeakReference<>(activity);
         }

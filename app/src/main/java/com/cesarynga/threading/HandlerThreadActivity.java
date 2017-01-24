@@ -52,6 +52,7 @@ public class HandlerThreadActivity extends AppCompatActivity {
     }
 
     // HandlerThread that handles operations in background
+    // Declare as static in order to prevent inner class to keep a reference to the activity
     private static class MyWorkerThread extends HandlerThread {
 
         // Handler that post task on the worker thread
@@ -71,10 +72,13 @@ public class HandlerThreadActivity extends AppCompatActivity {
     }
 
     // Operation to be executed in a background thread
+    // Declare as static in order to prevent inner class to keep a reference to the activity
     private static class BackgroundTask implements Runnable {
 
         private WeakReference<HandlerThreadActivity> activityRef;
 
+        // Pass the activity in the constructor and set it in a WeakReference,
+        // so the reference to the context will be eligible for GC
         public BackgroundTask(HandlerThreadActivity activity) {
             this.activityRef = new WeakReference<>(activity);
         }
@@ -93,10 +97,13 @@ public class HandlerThreadActivity extends AppCompatActivity {
     }
 
     // Task to be executed when background task starts
+    // Declare as static in order to prevent inner class to keep a reference to the activity
     private static class OnStartTask implements Runnable {
 
         private WeakReference<HandlerThreadActivity> activityRef;
 
+        // Pass the activity in the constructor and set it in a WeakReference,
+        // so the reference to the context will be eligible for GC
         public OnStartTask(HandlerThreadActivity activity) {
             this.activityRef = new WeakReference<>(activity);
         }
@@ -111,10 +118,13 @@ public class HandlerThreadActivity extends AppCompatActivity {
     }
 
     // Task to be executed when background task finishes
+    // Declare as static in order to prevent inner class to keep a reference to the activity
     private static class OnFinishTask implements Runnable {
 
         private WeakReference<HandlerThreadActivity> activityRef;
 
+        // Pass the activity in the constructor and set it in a WeakReference,
+        // so the reference to the context will be eligible for GC
         public OnFinishTask(HandlerThreadActivity activity) {
             this.activityRef = new WeakReference<>(activity);
         }

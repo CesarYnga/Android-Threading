@@ -6,6 +6,7 @@ import android.support.v4.content.LocalBroadcastManager;
 
 import java.util.concurrent.TimeUnit;
 
+// Service that performs its job in a worker thread
 public class MyIntentService extends IntentService {
 
     public static final String ACTION_TASK_STARTED = "action_task_started";
