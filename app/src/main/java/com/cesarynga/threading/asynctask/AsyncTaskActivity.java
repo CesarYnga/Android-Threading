@@ -1,4 +1,4 @@
-package com.cesarynga.threading;
+package com.cesarynga.threading.asynctask;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -7,6 +7,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import com.cesarynga.threading.R;
 
 import java.lang.ref.WeakReference;
 import java.util.concurrent.TimeUnit;

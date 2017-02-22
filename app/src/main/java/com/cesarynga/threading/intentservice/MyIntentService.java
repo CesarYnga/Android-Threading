@@ -1,4 +1,4 @@
-package com.cesarynga.threading;
+package com.cesarynga.threading.intentservice;
 
 import android.app.IntentService;
 import android.content.Intent;

@@ -16,17 +16,17 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".AsyncTaskActivity"
+            android:name=".asynctask.AsyncTaskActivity"
             android:label="@string/title_async_task" />
         <activity
-            android:name=".HandlerThreadActivity"
+            android:name=".handlerthread.HandlerThreadActivity"
             android:label="@string/title_handler_thread" />
         <activity
-            android:name=".IntentServiceActivity"
+            android:name=".intentservice.IntentServiceActivity"
             android:label="@string/title_intent_service" />
 
         <service
-            android:name=".MyIntentService"
+            android:name=".intentservice.MyIntentService"
             android:exported="false" />
     </application>
 
