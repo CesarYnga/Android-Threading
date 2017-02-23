@@ -1,4 +1,4 @@
-package com.cesarynga.threading;
+package com.cesarynga.threading.intentservice;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -13,6 +13,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import com.cesarynga.threading.MyIntentService;
+import com.cesarynga.threading.R;
 
 import java.lang.ref.WeakReference;
 

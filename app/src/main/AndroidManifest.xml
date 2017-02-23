@@ -3,6 +3,7 @@
     package="com.cesarynga.threading">
 
     <application
+        android:name=".AndroidApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -16,13 +17,13 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".AsyncTaskActivity"
+            android:name=".asynctask.AsyncTaskActivity"
             android:label="@string/title_async_task" />
         <activity
-            android:name=".HandlerThreadActivity"
+            android:name=".handlerthread.HandlerThreadActivity"
             android:label="@string/title_handler_thread" />
         <activity
-            android:name=".IntentServiceActivity"
+            android:name=".intentservice.IntentServiceActivity"
             android:label="@string/title_intent_service" />
 
         <service
