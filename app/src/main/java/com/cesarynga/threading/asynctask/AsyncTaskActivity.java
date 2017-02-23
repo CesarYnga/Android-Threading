@@ -39,9 +39,19 @@ public class AsyncTaskActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        if (myTask != null) {
+            myTask.cancel(false);
+        }
+    }
+
+    @Override
     protected void onStop() {
         super.onStop();
-        myTask.cancel(true);
+        if (myTask != null) {
+            myTask.cancel(true);
+        }
     }
 
     @OnClick(R.id.btn_start_task)
