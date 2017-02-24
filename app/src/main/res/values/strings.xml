@@ -4,6 +4,7 @@
     <string name="title_async_task">Async Task</string>
     <string name="title_handler_thread">Handler Thread</string>
     <string name="title_intent_service">Intent Service</string>
+    <string name="title_thread_pool">Thread Pool</string>
 
     <string name="text_start">Start</string>
     <string name="text_in_progress">In Progress&#8230;</string>

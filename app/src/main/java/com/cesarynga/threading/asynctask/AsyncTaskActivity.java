@@ -3,6 +3,7 @@ package com.cesarynga.threading.asynctask;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
@@ -19,12 +20,16 @@ import butterknife.OnClick;
 
 public class AsyncTaskActivity extends AppCompatActivity {
 
+    private static final String TAG = "AsyncTaskActivity";
+
     private static final int TASK_DURATION_IN_SECONDS = 5;
 
     @BindView(R.id.btn_start_task)
     Button btnStartTask;
     @BindView(R.id.progress_bar)
     ProgressBar progressBar;
+
+    private MyTask myTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,10 +38,27 @@ public class AsyncTaskActivity extends AppCompatActivity {
         ButterKnife.bind(this);
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (myTask != null) {
+            myTask.cancel(false);
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (myTask != null) {
+            myTask.cancel(true);
+        }
+    }
+
     @OnClick(R.id.btn_start_task)
     public void onClick() {
         // Need to execute a new AsyncTask each time
-        new MyTask(this).execute();
+        myTask = new MyTask(this);
+        myTask.execute();
     }
 
 
@@ -60,18 +82,23 @@ public class AsyncTaskActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... voids) {
+            Log.d(TAG, "Task started");
             try {
                 TimeUnit.SECONDS.sleep(TASK_DURATION_IN_SECONDS);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            Log.d(TAG, "Task finished");
             return null;
         }
 
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            activityRef.get().onTaskFinished();
+            if (!isCancelled()) {
+                Log.d(TAG, "Update UI");
+                activityRef.get().onTaskFinished();
+            }
         }
     }
 

@@ -5,5 +5,6 @@
         <item>@string/title_async_task</item>
         <item>@string/title_handler_thread</item>
         <item>@string/title_intent_service</item>
+        <item>@string/title_thread_pool</item>
     </string-array>
 </resources>

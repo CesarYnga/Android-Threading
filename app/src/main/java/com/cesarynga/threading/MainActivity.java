@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import com.cesarynga.threading.asynctask.AsyncTaskActivity;
 import com.cesarynga.threading.handlerthread.HandlerThreadActivity;
 import com.cesarynga.threading.intentservice.IntentServiceActivity;
+import com.cesarynga.threading.threadpool.ThreadPoolActivity;
 
 import butterknife.ButterKnife;
 import butterknife.OnItemClick;
@@ -31,6 +32,10 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case 2:
                 startActivity(IntentServiceActivity.class);
+                break;
+            case 3:
+                startActivity(ThreadPoolActivity.class);
+                break;
         }
     }
 
