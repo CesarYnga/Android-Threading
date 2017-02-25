@@ -1,7 +1,6 @@
 package com.cesarynga.threading.threadpool;
 
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -10,9 +9,9 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.cesarynga.threading.R;
+import com.cesarynga.threading.handlerthread.HandlerThreadActivity;
 
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.lang.ref.WeakReference;
 import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
@@ -28,9 +27,6 @@ public class ThreadPoolActivity extends AppCompatActivity {
     private static final int TASK_2_DURATION_IN_SECONDS = 3;
     private static final int TASK_3_DURATION_IN_SECONDS = 7;
 
-    private static final int POOL_SIZE = 3;
-    private static final int MAX_POOL_SIZE = 3;
-    private static final int TIMEOUT = 30;
 
     @BindView(R.id.btn_start_task_1)
     Button btnStartTask1;
@@ -45,10 +41,7 @@ public class ThreadPoolActivity extends AppCompatActivity {
     @BindView(R.id.progress_bar_3)
     ProgressBar progressBar3;
 
-    private ThreadPoolExecutor threadPoolExecutor;
-
-    // Handler that post task on the UI thread
-    private final Handler uiHandler = new Handler();
+    private MyThreadPool myThreadPool;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,69 +49,37 @@ public class ThreadPoolActivity extends AppCompatActivity {
         setContentView(R.layout.activity_thread_pool);
         ButterKnife.bind(this);
 
-        this.threadPoolExecutor = new ThreadPoolExecutor(
-                POOL_SIZE,
-                MAX_POOL_SIZE,
-                TIMEOUT,
-                TimeUnit.SECONDS,
-                new LinkedBlockingQueue<Runnable>());
+        myThreadPool = new MyThreadPool();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        myThreadPool.cancel(false);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        myThreadPool.cancel(true);
     }
 
     @OnClick(R.id.btn_start_task_1)
     public void onClick1() {
         showProgress(progressBar1);
-        threadPoolExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                executeDummyTask(TASK_1_DURATION_IN_SECONDS);
-                uiHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Log.d(TAG, "Update UI 1");
-                        showToast("Task 1 finished");
-                        hideProgress(progressBar1);
-                    }
-                });
-            }
-        });
+        myThreadPool.execute(new MyTask(this, MyTask.TASK_TYPE_1));
     }
 
     @OnClick(R.id.btn_start_task_2)
     public void onClick2() {
         showProgress(progressBar2);
-        threadPoolExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                executeDummyTask(TASK_2_DURATION_IN_SECONDS);
-                uiHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Log.d(TAG, "Update UI 2");
-                        showToast("Task 2 finished");
-                        hideProgress(progressBar2);
-                    }
-                });
-            }
-        });
+        myThreadPool.execute(new MyTask(this, MyTask.TASK_TYPE_2));
     }
 
     @OnClick(R.id.btn_start_task_3)
     public void onClick3() {
         showProgress(progressBar3);
-        threadPoolExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                executeDummyTask(TASK_3_DURATION_IN_SECONDS);
-                uiHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Log.d(TAG, "Update UI 3");
-                        showToast("Task 3 finished");
-                        hideProgress(progressBar3);
-                    }
-                });
-            }
-        });
+        myThreadPool.execute(new MyTask(this, MyTask.TASK_TYPE_3));
     }
 
     private void executeDummyTask(long timeout) {
@@ -139,5 +100,62 @@ public class ThreadPoolActivity extends AppCompatActivity {
     
     private void showToast(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    // Task to be executed on the thread pool
+    private static class MyTask implements Runnable {
+
+        public static final int TASK_TYPE_1 = 1;
+        public static final int TASK_TYPE_2 = 2;
+        public static final int TASK_TYPE_3 = 3;
+
+        private final WeakReference<ThreadPoolActivity> activityRef;
+        private final int taskType;
+
+        public MyTask(ThreadPoolActivity activity, int taskType) {
+            this.activityRef = new WeakReference<>(activity);
+            this.taskType = taskType;
+        }
+
+        @Override
+        public void run() {
+            int duration;
+            switch (taskType) {
+                case TASK_TYPE_1:
+                    duration = TASK_1_DURATION_IN_SECONDS;
+                    break;
+                case TASK_TYPE_2:
+                    duration = TASK_2_DURATION_IN_SECONDS;
+                    break;
+                case TASK_TYPE_3:
+                    duration = TASK_3_DURATION_IN_SECONDS;
+                    break;
+                default:
+                    duration = TASK_1_DURATION_IN_SECONDS;
+            }
+            activityRef.get().executeDummyTask(duration);
+            activityRef.get().myThreadPool.notifyTaskComplete(new Runnable() {
+                @Override
+                public void run() {
+                    switch (taskType) {
+                        case TASK_TYPE_1:
+                            Log.d(TAG, "Update UI 1");
+                            activityRef.get().showToast("Task 1 finished");
+                            activityRef.get().hideProgress(activityRef.get().progressBar1);
+                            break;
+                        case TASK_TYPE_2:
+                            Log.d(TAG, "Update UI 2");
+                            activityRef.get().showToast("Task 2 finished");
+                            activityRef.get().hideProgress(activityRef.get().progressBar2);
+                            break;
+                        case TASK_TYPE_3:
+                            Log.d(TAG, "Update UI 3");
+                            activityRef.get().showToast("Task 3 finished");
+                            activityRef.get().hideProgress(activityRef.get().progressBar3);
+                            break;
+                    }
+                }
+            });
+        }
     }
 }

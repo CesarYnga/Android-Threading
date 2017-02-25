@@ -13,7 +13,9 @@ import android.widget.Toast;
 
 import com.cesarynga.threading.R;
 
+import java.lang.ref.WeakReference;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -23,7 +25,7 @@ public class HandlerThreadActivity extends AppCompatActivity {
 
     private static final String TAG = "HandlerThreadActivity";
 
-    private static final int TASK_DURATION_IN_SECONDS = 5;
+    private static final int TASK_DURATION_IN_SECONDS = 7;
 
     private static final int TASK_INIT = 0;
     private static final int TASK_COMPLETE = 1;
@@ -33,8 +35,7 @@ public class HandlerThreadActivity extends AppCompatActivity {
     @BindView(R.id.progress_bar)
     ProgressBar progressBar;
 
-    // Handler that post task on the UI thread
-    private Handler uiHandler;
+    private UiHandler uiHandler;
 
     private final MyWorkerThread myWorkerThread = new MyWorkerThread("myWorkerThread");
 
@@ -47,26 +48,7 @@ public class HandlerThreadActivity extends AppCompatActivity {
         myWorkerThread.start();
         myWorkerThread.prepareHandler();
 
-        uiHandler = new Handler() {
-            @Override
-            public void handleMessage(Message msg) {
-                switch (msg.what) {
-                    case TASK_INIT:
-                        btnStartTask.setEnabled(false);
-                        btnStartTask.setText(R.string.text_in_progress);
-                        progressBar.setVisibility(View.VISIBLE);
-                        break;
-                    case TASK_COMPLETE:
-                        btnStartTask.setEnabled(true);
-                        btnStartTask.setText(R.string.text_start);
-                        progressBar.setVisibility(View.GONE);
-                        Toast.makeText(HandlerThreadActivity.this, R.string.text_finished, Toast.LENGTH_SHORT).show();
-                        break;
-                    default:
-                        super.handleMessage(msg);
-                }
-            }
-        };
+        uiHandler = new UiHandler(this);
     }
 
     @Override
@@ -117,7 +99,7 @@ public class HandlerThreadActivity extends AppCompatActivity {
         // Handler that post task on the worker thread
         private Handler workerHandler;
 
-        private boolean cancelled = false;
+        private final AtomicBoolean cancelled = new AtomicBoolean();
 
         MyWorkerThread(String name) {
             super(name);
@@ -132,11 +114,40 @@ public class HandlerThreadActivity extends AppCompatActivity {
         }
 
         public void cancel(boolean mayInterruptIfRunning) {
-            this.cancelled = mayInterruptIfRunning;
+            this.cancelled.set(mayInterruptIfRunning);
         }
 
         public boolean isCancelled() {
-            return this.cancelled;
+            return this.cancelled.get();
+        }
+    }
+
+    // Handler that post task on the UI thread
+    private static class UiHandler extends Handler {
+
+        private final WeakReference<HandlerThreadActivity> activityRef;
+
+        public UiHandler(HandlerThreadActivity activity) {
+            activityRef = new WeakReference<>(activity);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case TASK_INIT:
+                    activityRef.get().btnStartTask.setEnabled(false);
+                    activityRef.get().btnStartTask.setText(R.string.text_in_progress);
+                    activityRef.get().progressBar.setVisibility(View.VISIBLE);
+                    break;
+                case TASK_COMPLETE:
+                    activityRef.get().btnStartTask.setEnabled(true);
+                    activityRef.get().btnStartTask.setText(R.string.text_start);
+                    activityRef.get().progressBar.setVisibility(View.GONE);
+                    Toast.makeText(activityRef.get(), R.string.text_finished, Toast.LENGTH_SHORT).show();
+                    break;
+                default:
+                    super.handleMessage(msg);
+            }
         }
     }
 }
