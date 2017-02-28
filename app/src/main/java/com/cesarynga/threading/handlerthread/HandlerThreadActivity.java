@@ -52,44 +52,14 @@ public class HandlerThreadActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        myWorkerThread.cancel(false);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        myWorkerThread.cancel(true);
+    protected void onDestroy() {
+        super.onDestroy();
+        myWorkerThread.quit();
     }
 
     @OnClick(R.id.btn_start_task)
     public void onClick() {
-        myWorkerThread.postTask(new Runnable() {
-            @Override
-            public void run() {
-                uiHandler.sendEmptyMessage(TASK_INIT);
-
-                Log.d(TAG, "Task started");
-                try {
-                    TimeUnit.SECONDS.sleep(TASK_DURATION_IN_SECONDS);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                Log.d(TAG, "Task finished");
-
-                if (!myWorkerThread.isCancelled()) {
-                    Log.d(TAG, "Update UI");
-                    uiHandler.sendEmptyMessage(TASK_COMPLETE);
-                }
-            }
-        });
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        myWorkerThread.quit();
+        myWorkerThread.postTask(new MyTask(this));
     }
 
     // HandlerThread that handles operations in background
@@ -98,8 +68,6 @@ public class HandlerThreadActivity extends AppCompatActivity {
 
         // Handler that post task on the worker thread
         private Handler workerHandler;
-
-        private final AtomicBoolean cancelled = new AtomicBoolean();
 
         MyWorkerThread(String name) {
             super(name);
@@ -111,14 +79,6 @@ public class HandlerThreadActivity extends AppCompatActivity {
 
         void prepareHandler() {
             workerHandler = new Handler(getLooper());
-        }
-
-        public void cancel(boolean mayInterruptIfRunning) {
-            this.cancelled.set(mayInterruptIfRunning);
-        }
-
-        public boolean isCancelled() {
-            return this.cancelled.get();
         }
     }
 
@@ -147,6 +107,33 @@ public class HandlerThreadActivity extends AppCompatActivity {
                     break;
                 default:
                     super.handleMessage(msg);
+            }
+        }
+    }
+
+    private static class MyTask implements Runnable {
+
+        private WeakReference<HandlerThreadActivity> activityRef;
+
+        public MyTask(HandlerThreadActivity activity) {
+            this.activityRef = new WeakReference<>(activity);
+        }
+
+        @Override
+        public void run() {
+            activityRef.get().uiHandler.sendEmptyMessage(TASK_INIT);
+
+            Log.d(TAG, "Task started");
+            try {
+                TimeUnit.SECONDS.sleep(TASK_DURATION_IN_SECONDS);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            Log.d(TAG, "Task finished");
+
+            if (activityRef.get() != null) {
+                Log.d(TAG, "Update UI");
+                activityRef.get().uiHandler.sendEmptyMessage(TASK_COMPLETE);
             }
         }
     }

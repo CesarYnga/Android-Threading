@@ -36,6 +36,10 @@ public class MyThreadPool implements Executor {
         threadPoolExecutor.execute(command);
     }
 
+    public void shutdown() {
+        threadPoolExecutor.shutdownNow();
+    }
+
     public void cancel(boolean mayInterruptIfRunning) {
         this.cancelled.set(mayInterruptIfRunning);
     }

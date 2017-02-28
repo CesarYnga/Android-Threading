@@ -22,7 +22,7 @@ public class AsyncTaskActivity extends AppCompatActivity {
 
     private static final String TAG = "AsyncTaskActivity";
 
-    private static final int TASK_DURATION_IN_SECONDS = 5;
+    private static final int TASK_DURATION_IN_SECONDS = 7;
 
     @BindView(R.id.btn_start_task)
     Button btnStartTask;
@@ -39,16 +39,8 @@ public class AsyncTaskActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        if (myTask != null) {
-            myTask.cancel(false);
-        }
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
+    protected void onDestroy() {
+        super.onDestroy();
         if (myTask != null) {
             myTask.cancel(true);
         }

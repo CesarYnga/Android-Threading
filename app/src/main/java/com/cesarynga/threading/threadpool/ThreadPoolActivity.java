@@ -53,15 +53,10 @@ public class ThreadPoolActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        myThreadPool.cancel(false);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
+    protected void onDestroy() {
+        super.onDestroy();
         myThreadPool.cancel(true);
+        myThreadPool.shutdown();
     }
 
     @OnClick(R.id.btn_start_task_1)
@@ -83,11 +78,13 @@ public class ThreadPoolActivity extends AppCompatActivity {
     }
 
     private void executeDummyTask(long timeout) {
+        Log.d(TAG, "Task started");
         try {
             TimeUnit.SECONDS.sleep(timeout);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        Log.d(TAG, "Task finished");
     }
 
     private void showProgress(ProgressBar progressBar) {
